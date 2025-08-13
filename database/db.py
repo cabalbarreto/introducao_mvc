@@ -9,7 +9,30 @@ class Database:
         self.host = host
         self.port = port
 
+    def create_database_if_not_exists(self):
+        try:
+            # Conecta ao banco padrão
+            conn = psycopg2.connect(
+                dbname=self.dbname,
+                user=self.user,
+                password=self.password,
+                host=self.host,
+                port=self.port
+            )
+            conn.autocommit = True
+            cur = conn.cursor()
+            # Verifica se o banco já existe
+            cur.execute("SELECT 1 FROM pg_database WHERE datname = %s", (self.dbname,))
+            exists = cur.fetchone()
+            if not exists:
+                cur.execute(sql.SQL("CREATE DATABASE {}").format(sql.Identifier(self.dbname)))
+            cur.close()
+            conn.close()
+        except Exception as e:
+            print(f"Erro ao criar o banco de dados: {e}")
+
     def connect(self):
+        self.create_database_if_not_exists()
         try:
             conn = psycopg2.connect(
                 dbname=self.dbname,

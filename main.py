@@ -1,18 +1,15 @@
-from app.controllers.livro_controller import LivroController
-from database.db import Database
+from controllers.livro_controller import LivroController
 
 def main():
-    # Configurações do banco de dados
     db_config = {
-        "dbname": "biblioteca",
-        "user": "seu_usuario",
-        "password": "sua_senha",
-        "host": "localhost",
-        "port": "5432"
+        "dbname": "intro_mvc",         # Nome do banco criado
+        "user": "postgres",            # Usuário
+        "password": "geleira@1",       # Senha
+        "host": "127.0.0.1",           # Endereço IP, tive problema com o localhost
+        "port": "5433"
     }
 
-    # Inicialização do controlador
-    livro_controller = LivroController()
+    livro_controller = LivroController(db_config)
 
     # Exemplo de uso
     livro_controller.adicionar_livro(1, "O Senhor dos Anéis", "J.R.R. Tolkien", 1954, "9780544003415")
