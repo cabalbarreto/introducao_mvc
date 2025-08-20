@@ -1,6 +1,5 @@
 from database.db import Database
 from models.livro import Livro
-from views.livro_views import LivroView
 
 class LivroController:
     def __init__(self, db_config):
@@ -12,7 +11,6 @@ class LivroController:
             db_config["port"]
         )
         self.create_table_if_not_exists()
-        self.view = LivroView()
 
     def create_table_if_not_exists(self):
         conn = self.db.connect()
@@ -46,5 +44,14 @@ class LivroController:
         else:
             print("Erro ao conectar ao banco de dados.")
 
-    def listar_livros(self, livros):
-        self.view.mostrar_livros(livros)
+    def listar_livros(self):
+        conn = self.db.connect()
+        livros = []
+        if conn:
+            cur = conn.cursor()
+            cur.execute("SELECT id, titulo, autor, ano, isbn FROM livros ORDER BY id;")
+            for row in cur.fetchall():
+                livros.append(Livro(*row))
+            cur.close()
+            conn.close()
+        return livros

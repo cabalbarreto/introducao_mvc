@@ -1,7 +1,69 @@
-class LivroView:
-    def mostrar_livro(self, livro):
-        print(livro)
+import tkinter as tk
+from tkinter import ttk, messagebox
+from controllers.livro_controller import LivroController
 
-    def mostrar_livros(self, livros):
+class LivroView:
+    def __init__(self, controller):
+        self.controller = controller
+        self._show_livros_screen()
+
+    @staticmethod
+    def iniciar_login_banco():
+        def conectar():
+            db_config = {
+                "dbname": db_entry.get(),
+                "user": user_entry.get(),
+                "password": pass_entry.get(),
+                "host": host_entry.get(),
+                "port": port_entry.get()
+            }
+            try:
+                controller = LivroController(db_config)
+                login_win.destroy()
+                LivroView(controller)
+            except Exception as e:
+                messagebox.showerror("Erro", f"Não foi possível conectar ao banco:\n{e}")
+
+        login_win = tk.Tk()
+        login_win.title("Conectar ao Banco de Dados")
+        login_win.geometry("350x300")
+
+        tk.Label(login_win, text="Host:").pack(pady=2)
+        host_entry = tk.Entry(login_win)
+        host_entry.pack()
+
+        tk.Label(login_win, text="Porta:").pack(pady=2)
+        port_entry = tk.Entry(login_win)
+        port_entry.pack()
+
+        tk.Label(login_win, text="Banco de Dados:").pack(pady=2)
+        db_entry = tk.Entry(login_win)
+        db_entry.pack()
+
+        tk.Label(login_win, text="Usuário:").pack(pady=2)
+        user_entry = tk.Entry(login_win)
+        user_entry.pack()
+
+        tk.Label(login_win, text="Senha:").pack(pady=2)
+        pass_entry = tk.Entry(login_win, show="*")
+        pass_entry.pack()
+
+        tk.Button(login_win, text="Conectar", command=conectar).pack(pady=15)
+        login_win.mainloop()
+
+    def _show_livros_screen(self):
+        livros = self.controller.listar_livros()
+        win = tk.Tk()
+        win.title("Livros Cadastrados")
+        win.geometry("700x400")
+
+        columns = ("id", "titulo", "autor", "ano", "isbn")
+        tree = ttk.Treeview(win, columns=columns, show="headings")
+        for col in columns:
+            tree.heading(col, text=col.capitalize())
+            tree.column(col, width=120)
         for livro in livros:
-            self.mostrar_livro(livro)
+            tree.insert("", tk.END, values=(livro.id, livro.titulo, livro.autor, livro.ano, livro.isbn))
+        tree.pack(expand=True, fill="both")
+
+        win.mainloop()
